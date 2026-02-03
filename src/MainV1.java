@@ -13,8 +13,18 @@ public class MainV1 {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
-        // Dependency Injection: ATM receives FileATMStateService and PrinterService
-        ATMMachineV2 atm = new ATMMachineV2(new FileATMStateService(), new PrinterService(4,4));
+        // 1. Create the persistence service first
+        FileATMStateService stateService = new FileATMStateService();
+
+        // 2. Load the ACTUAL saved levels from the JSON file
+        int savedPaper = stateService.loadPaperLevel();
+        int savedInk = stateService.loadInkLevel();
+
+        // 3. Inject the SAVED levels into the printer
+        PrinterService printer = new PrinterService(savedPaper, savedInk);
+
+        // 4. Finally, inject the service and the printer into the ATM
+        ATMMachineV2 atm = new ATMMachineV2(stateService, printer);
 
         while (true) {
             // ------------------- HOME SCREEN -------------------
